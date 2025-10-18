@@ -2,6 +2,7 @@ import os
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from dotenv import load_dotenv
+from models import *
 
 load_dotenv()
 
@@ -14,6 +15,7 @@ class Database:
 
         self.users = UsersTable(self.db)
         self.spreadsheets = SpreadsheetsTable(self.db)
+        self.user_spreadsheets = UserSpreadsheetsTable(self.db)
         self.rows = RowsTable(self.db)
 
     def connect(self):

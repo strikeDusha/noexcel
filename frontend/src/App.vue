@@ -1,6 +1,9 @@
 <template>
   <div class="auth-container">
     <component :is="currentViewComponent" @switch-view="switchView" />
+  <div id="app">
+    <!-- router-view рендерит текущий маршрут -->
+    <router-view />
   </div>
 </template>
 
@@ -26,4 +29,5 @@ const currentViewComponent = computed(() => {
     case 'spreadsheet': return SpreadsheetPage
   }
 })
+// здесь ничего не нужно, роутер подключается в main.js
 </script>

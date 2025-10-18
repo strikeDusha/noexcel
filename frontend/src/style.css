@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Segoe UI", sans-serif;
-  background: url('/icegif-154.gif') no-repeat center center fixed;
+  background: url('deadinside.gif') no-repeat center center fixed;
   background-size: cover;
 }
 
@@ -14,12 +14,61 @@ body {
 }
 
 .auth-box {
-  background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(15px);
-  border-radius: 12px;
-  padding: 40px;
-  width: 320px;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(
+      rgba(255, 255, 255, 0.15),
+      rgba(255, 255, 255, 0.05)
+    ); /* плавный градиент сверху вниз */
+  backdrop-filter: blur(40px);   /* сильное размытие фона */
+  border-radius: 20px;
+  padding: 60px;
+  width: 480px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4); /* более “воздушная” тень */
   color: white;
   text-align: center;
+}
+
+
+.auth-box h2 {
+  margin-bottom: 35px;
+  font-size: 2em;
+}
+
+.auth-box input {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.2em;
+  outline: none;
+}
+
+.auth-box button {
+  width: 100%;
+  padding: 15px;
+  background-color: #0078ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+
+.auth-box button:hover {
+  background-color: #005fcc;
+}
+
+.auth-box a {
+  color: #9b59b6;
+  font-size: 1em;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 15px;
+}
+
+.auth-box a:hover {
+  text-decoration: underline;
+  color: #d6a0f5;
 }

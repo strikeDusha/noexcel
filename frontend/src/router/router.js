@@ -8,7 +8,7 @@ import MainPage from '../components/MainPage.vue'
 import SpreedSheet from '../components/SpreadsheetPage.vue'
 
 const routes = [
-  { path: '/SpreadSheet', name: 'SpreadSheet', component: SpreedSheet },
+  { path: '/spreadSheet', name: 'SpreadSheet', component: SpreedSheet },
   { path: '/', name: 'MainPage', component: MainPage },
   { path: '/login', name: 'Login', component: AuthPage },
   { path: '/register', name: 'Register', component: RegisterPage },

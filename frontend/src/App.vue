@@ -1,11 +1,21 @@
-<script setup></script>
-
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="auth-container">
+    <!-- Компонент авторизации -->
+    <AuthPage v-if="currentView === 'auth'" @switch-view="switchView" />
+
+    <!-- Компонент регистрации -->
+    <RegisterPage v-else @switch-view="switchView" />
+  </div>
 </template>
 
-<style scoped></style>
+<script setup>
+import { ref } from 'vue'
+import AuthPage from './components/AuthPage.vue'
+import RegisterPage from './components/RegisterPage.vue'
+
+const currentView = ref('auth')
+
+function switchView(view) {
+  currentView.value = view
+}
+</script>

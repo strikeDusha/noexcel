@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: url('/icegif-154.gif') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.auth-box {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+  padding: 40px;
+  width: 320px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+  color: white;
+  text-align: center;
+}

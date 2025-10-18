@@ -1,25 +1,27 @@
 <template>
-  <div class="auth-box">
-    <h2>Регистрация</h2>
+  <div class="auth-container">
+    <div class="auth-box">
+      <h2>Регистрация</h2>
 
-    <input v-model="username" type="text" placeholder="Имя пользователя" />
-    <input v-model="password" type="password" placeholder="Пароль" />
-    <input v-model="confirmPassword" type="password" placeholder="Подтверждение пароля" />
+      <form @submit.prevent="handleRegister">
+        <input v-model="username" type="text" placeholder="Имя пользователя" />
+        <input v-model="password" type="password" placeholder="Пароль" />
+        <input v-model="confirmPassword" type="password" placeholder="Подтверждение пароля" />
 
-    <button @click="handleRegister" :disabled="loading">
-      {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
-    </button>
+        <button ref="registerBtn" type="submit" :disabled="loading">
+          {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
+        </button>
+      </form>
 
-    <p v-if="error" style="color: red; margin-top: 10px;">{{ error }}</p>
+      <p v-if="error" class="error-text">{{ error }}</p>
 
-    <p style="margin-top: 10px;">
       <a href="#" @click.prevent="goLogin">Назад к авторизации</a>
-    </p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -29,11 +31,27 @@ const password = ref('')
 const confirmPassword = ref('')
 const loading = ref(false)
 const error = ref('')
+const registerBtn = ref(null)
 
-// URL бэка
 const API_URL = 'http://localhost:8080/api/register'
 
-// Логика регистрации
+// --- Обработчик клавиши Enter ---
+onMounted(() => {
+  window.addEventListener('keydown', handleGlobalEnter)
+})
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleGlobalEnter)
+})
+
+function handleGlobalEnter(e) {
+  if (e.key === 'Enter') {
+    const active = document.activeElement
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return
+    e.preventDefault()
+    registerBtn.value?.click()
+  }
+}
+
 async function handleRegister() {
   if (!username.value || !password.value || !confirmPassword.value) {
     error.value = 'Заполните все поля'
@@ -54,7 +72,7 @@ async function handleRegister() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         username: username.value,
-        password: password.value, // можно хэшировать, если бэк ожидает SHA-256
+        password: password.value,
       }),
     })
 
@@ -63,7 +81,7 @@ async function handleRegister() {
       throw new Error(text || 'Ошибка регистрации')
     }
 
-    const data = await res.json()
+    await res.json()
     alert('Регистрация успешна! Переходим на страницу входа')
     router.push({ name: 'Login' })
 
@@ -74,20 +92,14 @@ async function handleRegister() {
   }
 }
 
-// Переход на Login через роутер
 function goLogin() {
   router.push({ name: 'Login' })
 }
 </script>
 
 <style scoped>
-.auth-box {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 250px;
-}
-button {
-  padding: 6px;
+.error-text {
+  color: red;
+  margin-top: 10px;
 }
 </style>

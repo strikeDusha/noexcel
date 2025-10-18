@@ -1,7 +1,10 @@
 // src/main.js
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router/router.js'   // <-- подключаем твой router
+import router from './router/router.js'
+
+// Подключаем глобальные стили 
+import './style.css'
 
 const app = createApp(App)
 

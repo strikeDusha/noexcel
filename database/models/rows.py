@@ -7,114 +7,86 @@ class RowsTable:
         self._create_indexes()
 
     def _create_indexes(self):
-        """Индексы для быстрого поиска строк по таблице и порядку"""
+        """Индексы для быстрого поиска строк"""
         self.collection.create_index([
             ('spreadsheet_id', 1),
             ('row_index', 1)
         ], unique=True)
 
-    def create_row(self, row_data):
-        """Создать новую строку"""
-        row = {
-            'spreadsheet_id': row_data['spreadsheet_id'],
-            'row_index': row_data['row_index'],
-            'cells': row_data.get('cells', {}),  # {"A": "value1", "B": "value2"}
-            'style': row_data.get('style', {}),
-            'created_at': datetime.utcnow(),
-            'updated_at': datetime.utcnow(),
-            'updated_by': row_data.get('user_id')
-        }
+    def _is_row_empty(self, cells):
+        """Проверяет, является ли строка пустой"""
+        if not cells:
+            return True
+        return all(value is None or value == '' for value in cells.values())
 
-        try:
-            result = self.collection.insert_one(row)
-            return str(result.inserted_id)
-        except Exception as e:
-            print(f"Ошибка создания строки: {e}")
-            return None
-
-    def update_row(self, spreadsheet_id, row_index, update_data):
-        """Обновить строку (полностью или частично)"""
-        # Если обновляем ячейки, то мержим с существующими
-        if 'cells' in update_data:
-            update_data = {
-                '$set': {
-                    **{f'cells.{k}': v for k, v in update_data['cells'].items()},
-                    'updated_at': datetime.utcnow(),
-                    'updated_by': update_data.get('user_id')
-                }
-            }
-        else:
-            update_data = {
-                '$set': {
-                    **update_data,
-                    'updated_at': datetime.utcnow()
-                }
-            }
-
-        result = self.collection.update_one(
-            {
+    def create_or_update_row(self, spreadsheet_id, row_index, cells_data, user_id):
+        """Создать или обновить строку (храним только если не пустая)"""
+        # Проверяем, пустая ли строка после обновления
+        if self._is_row_empty(cells_data):
+            # Если строка пустая - удаляем её из БД если она существует
+            self.collection.delete_one({
                 'spreadsheet_id': spreadsheet_id,
                 'row_index': row_index
-            },
-            update_data,
-            upsert=True  # создаст если не существует
-        )
-        return result.modified_count > 0 or result.upserted_id is not None
+            })
+            return "deleted"  # или None, в зависимости от логики
+        else:
+            # Строка не пустая - создаем/обновляем
+            row = {
+                'spreadsheet_id': spreadsheet_id,
+                'row_index': row_index,
+                'cells': cells_data,
+                'updated_at': datetime.utcnow(),
+                'updated_by': user_id
+            }
+
+            result = self.collection.replace_one(
+                {
+                    'spreadsheet_id': spreadsheet_id,
+                    'row_index': row_index
+                },
+                row,
+                upsert=True
+            )
+
+            return "created" if result.upserted_id else "updated"
 
     def update_cell_value(self, spreadsheet_id, row_index, column, value, user_id):
-        """Обновить значение одной ячейки в строке"""
-        result = self.collection.update_one(
-            {
-                'spreadsheet_id': spreadsheet_id,
-                'row_index': row_index
-            },
-            {
-                '$set': {
-                    f'cells.{column}': value,
-                    'updated_at': datetime.utcnow(),
-                    'updated_by': user_id
-                }
-            },
-            upsert=True  # создаст строку если её нет
-        )
-        return True
+        """Обновить значение одной ячейки"""
+        # Сначала получаем текущую строку
+        current_row = self.collection.find_one({
+            'spreadsheet_id': spreadsheet_id,
+            'row_index': row_index
+        })
+
+        cells_data = current_row['cells'] if current_row else {}
+        cells_data[column] = value
+
+        # Используем общий метод для создания/обновления
+        return self.create_or_update_row(spreadsheet_id, row_index, cells_data, user_id)
 
     def get_spreadsheet_rows(self, spreadsheet_id, skip=0, limit=100):
-        """Получить строки таблицы с пагинацией"""
+        """Получить заполненные строки таблицы"""
         return list(self.collection.find(
             {'spreadsheet_id': spreadsheet_id}
         ).sort('row_index', 1).skip(skip).limit(limit))
 
     def get_row(self, spreadsheet_id, row_index):
-        """Получить конкретную строку"""
+        """Получить конкретную строку (только если она существует)"""
         return self.collection.find_one({
             'spreadsheet_id': spreadsheet_id,
             'row_index': row_index
         })
 
     def delete_row(self, spreadsheet_id, row_index):
-        """Удалить строку"""
+        """Удалить строку (просто удаляем из БД)"""
         result = self.collection.delete_one({
             'spreadsheet_id': spreadsheet_id,
             'row_index': row_index
         })
         return result.deleted_count > 0
 
-    def insert_row(self, spreadsheet_id, row_index, user_id):
-        """Вставить новую строку (сдвинуть существующие вниз)"""
-        # Сдвигаем все строки ниже вниз
-        self.collection.update_many(
-            {
-                'spreadsheet_id': spreadsheet_id,
-                'row_index': {'$gte': row_index}
-            },
-            {'$inc': {'row_index': 1}}
-        )
-
-        # Создаем новую пустую строку
-        return self.create_row({
-            'spreadsheet_id': spreadsheet_id,
-            'row_index': row_index,
-            'cells': {},
-            'user_id': user_id
+    def get_filled_rows_count(self, spreadsheet_id):
+        """Получить количество заполненных строк"""
+        return self.collection.count_documents({
+            'spreadsheet_id': spreadsheet_id
         })

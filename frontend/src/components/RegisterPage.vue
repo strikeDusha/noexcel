@@ -72,7 +72,7 @@ async function handleRegister() {
     localStorage.setItem(userKey, JSON.stringify(user))
 
     alert(`Регистрация успешна! Привет, ${username.value}`)
-    router.push('/table') // редирект на таблицы
+    router.push('/me') // редирект на таблицы
 
   } catch (e) {
     error.value = 'Ошибка регистрации'

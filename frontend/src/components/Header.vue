@@ -49,20 +49,19 @@ onMounted(() => {
 <style scoped>
 .btn-link {
   display: inline-block;
-  background-color: white;
-  color: black;
-  border: none;
-  border-radius: 8px;
   padding: 10px 20px;
-  font-weight: 600;
-  font-size: 1em;
-  cursor: pointer;
+  background-color: white;
+  color: #2ED1C9; /* бирюзовый акцент */
+  border-radius: 10px;
   text-decoration: none; /* убираем underline */
-  transition: background-color 0.2s;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
 .btn-link:hover {
-  background-color: #f0f0f0; /* лёгкое выделение при наведении */
+  transform: scale(1.05); /* лёгкое увеличение */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 
@@ -100,6 +99,7 @@ onMounted(() => {
 .nav a {
   color: black;
   text-decoration: none;
+  
   font-weight: 500;
 }
 

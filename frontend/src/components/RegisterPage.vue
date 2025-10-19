@@ -24,8 +24,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-const router = useRouter()
+// --- Импорт простого “хранилища” пользователя ---
+const userKey = 'fake-user'
 
+const router = useRouter()
 const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -33,15 +35,9 @@ const loading = ref(false)
 const error = ref('')
 const registerBtn = ref(null)
 
-const API_URL = 'http://localhost:8080/api/register'
-
 // --- Обработчик клавиши Enter ---
-onMounted(() => {
-  window.addEventListener('keydown', handleGlobalEnter)
-})
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleGlobalEnter)
-})
+onMounted(() => window.addEventListener('keydown', handleGlobalEnter))
+onUnmounted(() => window.removeEventListener('keydown', handleGlobalEnter))
 
 function handleGlobalEnter(e) {
   if (e.key === 'Enter') {
@@ -52,6 +48,7 @@ function handleGlobalEnter(e) {
   }
 }
 
+// --- Фейковая регистрация ---
 async function handleRegister() {
   if (!username.value || !password.value || !confirmPassword.value) {
     error.value = 'Заполните все поля'
@@ -67,37 +64,36 @@ async function handleRegister() {
   error.value = ''
 
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: username.value,
-        password: password.value,
-      }),
-    })
+    // Здесь имитация задержки (как будто бек обрабатывает)
+    await new Promise(r => setTimeout(r, 500))
 
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(text || 'Ошибка регистрации')
-    }
+    // Сохраняем пользователя в localStorage
+    const user = { id: Date.now(), username: username.value, token: 'fake-token-123' }
+    localStorage.setItem(userKey, JSON.stringify(user))
 
-    await res.json()
-    alert('Регистрация успешна! Переходим на страницу входа')
-    router.push({ name: 'Login' })
+    alert(`Регистрация успешна! Привет, ${username.value}`)
+    router.push('/me') // редирект на таблицы
 
   } catch (e) {
-    error.value = e.message || 'Ошибка сети'
+    error.value = 'Ошибка регистрации'
   } finally {
     loading.value = false
   }
 }
 
+// --- Переход на страницу логина ---
 function goLogin() {
   router.push({ name: 'Login' })
 }
 </script>
 
 <style scoped>
+.auth-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .error-text {
   color: red;
   margin-top: 10px;

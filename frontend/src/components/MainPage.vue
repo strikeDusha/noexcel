@@ -6,6 +6,11 @@
       Проект, созданный на хакатоне, объединяет базы данных, облачную синхронизацию и современный фронтенд для работы с Excel-подобными таблицами прямо в браузере.
     </p>
     </div>
+    <div class="button-group">
+      <button class="action-btn" @click="goTo('/login')">Login</button>
+      <button class="action-btn" @click="goTo('/register')">Register</button>
+      
+    </div>
     <section class="section">
       <h2>Основные задачи</h2>
       <ul>
@@ -54,7 +59,12 @@
 </template>
 
 <script setup>
-// пока без логики
+import { useRouter } from 'vue-router'
+
+const router = useRouter() // for working buttons
+function goTo( route){
+    router.push(route)
+}
 </script>
 
 <style scoped>
@@ -112,5 +122,31 @@ ul li {
   background: #f9f9f9;
   padding: 0.6rem 1rem;
   border-radius: 10px;
+}
+
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.action-btn {
+  background-color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.action-btn:hover {
+  background-color: #e9ffff;
+  transform: scale(1.05);
+  transform: translateY(-2px);
 }
 </style>
